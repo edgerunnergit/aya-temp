@@ -1,0 +1,2 @@
+[workspace]
+members = ["git-clone-detect", "git-clone-detect-common", "xtask"]

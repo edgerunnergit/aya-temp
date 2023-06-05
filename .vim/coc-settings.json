@@ -1,0 +1,3 @@
+{
+  "rust-analyzer.linkedProjects": ["Cargo.toml", "git-clone-detect-ebpf/Cargo.toml"]
+}
