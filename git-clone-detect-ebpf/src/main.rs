@@ -7,6 +7,7 @@ use aya_bpf::{bindings::xdp_action, macros::xdp, programs::XdpContext};
 use aya_log_ebpf::info;
 
 // use pnet_packet::ip::IpNextHeaderProtocols;
+// use etherparse::IpHeaderSlice;
 use network_types::{
     eth::{EthHdr, EtherType},
     ip::{Ipv4Hdr, IpProto},
@@ -39,6 +40,9 @@ unsafe fn ptr_at<T>(ctx: &XdpContext, offset: usize) -> Result<*const T, ()> {
 fn try_git_clone_detect(ctx: XdpContext) -> Result<u32, ()> {
     // info!(&ctx, "received a packet");
     // Ok(xdp_action::XDP_PASS)
+
+    let data = unsafe { core::slice::from_raw_parts(ctx.data() as *const u8, ctx.data_end() - ctx.data()) };
+
     let ethhdr: *const EthHdr = unsafe { ptr_at(&ctx, 0)? };
     match unsafe { *ethhdr }.ether_type {
         EtherType::Ipv4 => {}
@@ -63,7 +67,8 @@ fn try_git_clone_detect(ctx: XdpContext) -> Result<u32, ()> {
         _ => return Err(()),
     };
 
-    info!(&ctx, "SRC IP: {}, SRC PORT: {}, DST IP: {}", source_addr, source_port, dest_addr);
+    info!(&ctx, "SRC IP: {}, SRC PORT: {}, DST IP: {}, packet_len(bytes): {}", source_addr, source_port, dest_addr, data.len());
+    // info!(&ctx, "all data: {}", ctx.data());
 
     Ok(xdp_action::XDP_PASS)
 }
